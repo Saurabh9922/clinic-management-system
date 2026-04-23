@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Appointments</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style> body { background: #f0f4f8; } </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/patient/dashboard"><i class="bi bi-hospital"></i> Clinic System</a>
+        <div class="ms-auto d-flex gap-2">
+            <a href="/patient/doctors" class="btn btn-outline-light btn-sm">Book New</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4 class="mb-3"><i class="bi bi-journal-medical"></i> My Appointments</h4>
+
+    <!-- Show result message after booking/cancel -->
+    <div th:if="${msg}" class="alert"
+         th:classappend="${msg.startsWith('SUCCESS') ? 'alert-success' : 'alert-danger'}"
+         th:text="${msg}">
+    </div>
+
+    <!-- No appointments message -->
+    <div th:if="${appointments.isEmpty()}" class="alert alert-info">
+        You have no appointments yet.
+        <a href="/patient/doctors">Book one now!</a>
+    </div>
+
+    <!-- Appointments table -->
+    <div th:if="${!appointments.isEmpty()}" class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Doctor</th>
+                        <th>Specialization</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appt, iter : ${appointments}">
+                        <td th:text="${iter.count}">1</td>
+                        <td th:text="'Dr. ' + ${appt.doctor.name}">Doctor</td>
+                        <td th:text="${appt.doctor.specialization}">Specialization</td>
+                        <td>
+                            <span th:text="${appt.timeSlot.startTime}"></span>
+                            -
+                            <span th:text="${appt.timeSlot.endTime}"></span>
+                        </td>
+                        <td>
+                            <!-- Status badge: green for BOOKED, red for CANCELLED -->
+                            <span class="badge"
+                                  th:classappend="${appt.status == 'BOOKED'} ? 'bg-success' : 'bg-danger'"
+                                  th:text="${appt.status}">
+                            </span>
+                        </td>
+                        <td>
+                            <!-- Only show cancel button if appointment is BOOKED -->
+                            <form th:if="${appt.status == 'BOOKED'}"
+                                  th:action="@{/patient/cancel/{id}(id=${appt.id})}"
+                                  method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Cancel this appointment?')">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </button>
+                            </form>
+                            <span th:if="${appt.status == 'CANCELLED'}" class="text-muted small">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

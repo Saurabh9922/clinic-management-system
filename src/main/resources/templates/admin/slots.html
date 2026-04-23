@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Time Slots</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style> body { background: #f0f4f8; } </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/admin/dashboard"><i class="bi bi-shield-check"></i> Admin Panel</a>
+        <div class="ms-auto d-flex gap-2">
+            <a href="/admin/doctors" class="btn btn-outline-light btn-sm">Back to Doctors</a>
+            <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- Doctor header -->
+    <div class="alert alert-info mb-4">
+        <strong><i class="bi bi-person-badge"></i> Dr. <span th:text="${doctor.name}">Name</span></strong>
+        &nbsp;|&nbsp;
+        <span th:text="${doctor.specialization}">Specialization</span>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Add Slot Form -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <i class="bi bi-clock-history"></i> Add Time Slot
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/slots/add/{id}(id=${doctor.id})}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="text" name="startTime" class="form-control"
+                                   placeholder="e.g. 09:00 AM" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">End Time</label>
+                            <input type="text" name="endTime" class="form-control"
+                                   placeholder="e.g. 09:30 AM" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle"></i> Add Slot
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slots List -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-list-ul"></i> All Time Slots</div>
+                <div class="card-body p-0">
+                    <div th:if="${slots.isEmpty()}" class="p-3 text-muted">
+                        No slots added yet. Add some slots using the form.
+                    </div>
+                    <table th:if="${!slots.isEmpty()}" class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Status</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="slot, iter : ${slots}">
+                                <td th:text="${iter.count}">1</td>
+                                <td th:text="${slot.startTime}">Start</td>
+                                <td th:text="${slot.endTime}">End</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${slot.booked} ? 'bg-danger' : 'bg-success'"
+                                          th:text="${slot.booked} ? 'Booked' : 'Available'">
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- Only allow deleting unbooked slots -->
+                                    <form th:if="${!slot.booked}"
+                                          th:action="@{/admin/slots/delete/{sid}/{did}(sid=${slot.id},did=${doctor.id})}"
+                                          method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Delete this time slot?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    <span th:if="${slot.booked}" class="text-muted small">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
