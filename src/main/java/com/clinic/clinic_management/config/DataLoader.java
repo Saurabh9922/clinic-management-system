@@ -34,7 +34,7 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("✅ Doctors added");
 
             // ==========================
-            // ADD TIME SLOTS (IMPORTANT 🔥)
+            // ADD TIME SLOTS
             // ==========================
 
             addSlots(d1);
